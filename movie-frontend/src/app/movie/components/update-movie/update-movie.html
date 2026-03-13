@@ -1,0 +1,134 @@
+<div style="background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+  <div style="background: white; border-radius: 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 3rem; max-width: 36rem; width: 100%; position: relative; overflow: hidden;">
+ 
+    <div style="position: absolute; top: -50%; right: -50%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    
+    <div style="position: relative; z-index: 1;">
+      <h2 style="font-size: 2.5rem; font-weight: 800; text-align: center; color: #667eea; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Edit Movie</h2>
+      <div style="height: 3px; width: 60px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); margin: 1rem auto 3rem; border-radius: 2px;"></div>
+
+      <div *ngIf="isLoading" style="text-align: center; padding: 4rem 2rem;">
+        <!-- Loading GIF -->
+        <div style="display: inline-block; margin-bottom: 1.5rem;">
+          <img src="/cute-bird-loader-loader.gif" alt="Loading..." style="width: 80px; height: 80px;">
+        </div>
+        <p style="font-size: 1.1rem; color: #6b7280; font-weight: 500; margin: 0;">Loading movie details...</p>
+        <p style="font-size: 0.875rem; color: #9ca3af; margin-top: 0.5rem;">Please wait while we fetch the movie information</p>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div *ngIf="successMessage" [style.backgroundColor]="messageType === 'success' ? '#ecfdf5' : '#fef2f2'" [style.borderLeft]="messageType === 'success' ? '4px solid #10b981' : '4px solid #ef4444'" style="border-radius: 0.5rem; padding: 1.25rem; margin-bottom: 2rem; font-size: 0.95rem; font-weight: 500; color: '#1f2937';">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">{{ messageType === 'success' ? '✓' : '⚠' }}</span>
+            <span>{{ successMessage }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="isSubmitting" style="text-align: center; padding: 4rem 2rem;">
+          <!-- Loading GIF while submitting -->
+          <div style="display: inline-block; margin-bottom: 1.5rem;">
+            <img src="/cute-bird-loader-loader.gif" alt="Loading..." style="width: 80px; height: 80px;">
+          </div>
+          <p style="font-size: 1.1rem; color: #6b7280; font-weight: 500; margin: 0;">Updating movie...</p>
+          <p style="font-size: 0.875rem; color: #9ca3af; margin-top: 0.5rem;">Please wait while we save your changes</p>
+        </div>
+
+        <form *ngIf="!isSubmitting" (ngSubmit)="submitForm()" style="display: flex; flex-direction: column; gap: 1.75rem;">
+          <div>
+            <label for="title" style="display: block; font-size: 0.95rem; font-weight: 700; color: #2d3748; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem;">Movie Title</label>
+            <input 
+              id="title"
+              [(ngModel)]="title" 
+              name="title"
+              type="text" 
+              placeholder="e.g., The Matrix" 
+              [style.borderColor]="focusedField === 'title' ? '#667eea' : '#e5e7eb'"
+              [style.backgroundColor]="focusedField === 'title' ? '#fff' : '#f9fafb'"
+              [style.boxShadow]="focusedField === 'title' ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'"
+              style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem; box-sizing: border-box; transition: all 0.3s ease;" 
+              (focus)="focusedField = 'title'" 
+              (blur)="focusedField = null">
+            <span *ngIf="errors['title']" style="color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; display: block; font-weight: 500;">✗ {{ errors['title'] }}</span>
+          </div>
+
+          <div>
+            <label for="director" style="display: block; font-size: 0.95rem; font-weight: 700; color: #2d3748; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem;">Director Name</label>
+            <input 
+              id="director"
+              [(ngModel)]="director" 
+              name="director"
+              type="text" 
+              placeholder="e.g., Christopher Nolan" 
+              [style.borderColor]="focusedField === 'director' ? '#667eea' : '#e5e7eb'"
+              [style.backgroundColor]="focusedField === 'director' ? '#fff' : '#f9fafb'"
+              [style.boxShadow]="focusedField === 'director' ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'"
+              style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem; box-sizing: border-box; transition: all 0.3s ease;" 
+              (focus)="focusedField = 'director'" 
+              (blur)="focusedField = null">
+            <span *ngIf="errors['director']" style="color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; display: block; font-weight: 500;">✗ {{ errors['director'] }}</span>
+          </div>
+
+          <div>
+            <label for="year" style="display: block; font-size: 0.95rem; font-weight: 700; color: #2d3748; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem;">Release Year</label>
+            <input 
+              id="year"
+              [(ngModel)]="year" 
+              name="year"
+              type="number" 
+              placeholder="e.g., 1999" 
+              [style.borderColor]="focusedField === 'year' ? '#667eea' : '#e5e7eb'"
+              [style.backgroundColor]="focusedField === 'year' ? '#fff' : '#f9fafb'"
+              [style.boxShadow]="focusedField === 'year' ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'"
+              style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem; box-sizing: border-box; transition: all 0.3s ease;" 
+              (focus)="focusedField = 'year'" 
+              (blur)="focusedField = null">
+            <span *ngIf="errors['year']" style="color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; display: block; font-weight: 500;">✗ {{ errors['year'] }}</span>
+          </div>
+
+          <div>
+            <label for="genre" style="display: block; font-size: 0.95rem; font-weight: 700; color: #2d3748; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem;">Genre</label>
+            <input 
+              id="genre"
+              [(ngModel)]="genre" 
+              name="genre"
+              type="text" 
+              placeholder="e.g., Science Fiction" 
+              [style.borderColor]="focusedField === 'genre' ? '#667eea' : '#e5e7eb'"
+              [style.backgroundColor]="focusedField === 'genre' ? '#fff' : '#f9fafb'"
+              [style.boxShadow]="focusedField === 'genre' ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'"
+              style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem; box-sizing: border-box; transition: all 0.3s ease;" 
+              (focus)="focusedField = 'genre'" 
+              (blur)="focusedField = null">
+            <span *ngIf="errors['genre']" style="color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; display: block; font-weight: 500;">✗ {{ errors['genre'] }}</span>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button 
+              type="submit" 
+              [style.background]="isSubmitting ? '#059669' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)'"
+              [style.transform]="isSubmitButtonHovered ? 'translateY(-2px)' : 'translateY(0)'"
+              [style.boxShadow]="isSubmitButtonHovered ? '0 8px 25px rgba(16, 185, 129, 0.8)' : '0 4px 15px rgba(16, 185, 129, 0.6)'"
+              style="flex: 1; padding: 0.75rem 1rem; color: white; font-weight: 900; border: none; border-radius: 0.5rem; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease;"
+              [disabled]="isSubmitting"
+              (mouseenter)="isSubmitButtonHovered = true"
+              (mouseleave)="isSubmitButtonHovered = false">
+              {{ isSubmitting ? 'Updating...' : 'Update Movie' }}
+            </button>
+            <button 
+              type="button" 
+              [style.backgroundColor]="isCancelButtonHovered ? '#d1d5db' : '#e5e7eb'"
+              [style.transform]="isCancelButtonHovered ? 'translateY(-2px)' : 'translateY(0)'"
+              style="flex: 1; padding: 0.75rem 1rem; color: #374151; font-weight: 700; border: none; border-radius: 0.5rem; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease;"
+              (click)="navigateBack()"
+              (mouseenter)="isCancelButtonHovered = true"
+              (mouseleave)="isCancelButtonHovered = false">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
